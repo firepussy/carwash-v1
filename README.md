@@ -116,6 +116,7 @@ DATABASE_URL="<production_database_url>" npm run seed
 - `/api/bookings`
 - `/api/orders`
 - `/api/dashboard`
+- `/api/deploy-info`
 
 ## Useful Scripts
 ```bash
@@ -200,3 +201,21 @@ npx vercel logs <deployment-url>
 - `https://<domain>/api/health`
 
 If `/api/health` returns JSON but the domain root still fails, the domain alias is likely mapped to an older/removed deployment. Reassign the alias to the latest ready deployment.
+
+
+### G) Force re-link and create a fresh production deployment
+Use this when deployment URLs keep returning `NOT_FOUND`.
+
+```bash
+npm run vercel:link
+npm run vercel:prod
+```
+
+Then verify:
+- `https://<new-deployment-url>/api/health`
+- `https://<new-deployment-url>/api/deploy-info`
+
+If those work but your custom domain fails, the domain alias is not attached to the new deployment.
+
+## Extra Debug Endpoint
+- `/api/deploy-info` returns Vercel env + commit metadata so you can confirm which commit is actually serving traffic.
