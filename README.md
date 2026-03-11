@@ -159,3 +159,44 @@ After deploy, verify:
 If `/api/health` works but `/` still fails, check domain assignment for the latest deployment in Vercel’s **Domains** tab.
 
 Also verify you are opening the **current deployment URL** from Vercel (not an old one). In Vercel, open the latest successful deployment and use **Visit** or reassign aliases to it.
+
+
+## Incident Runbook: Vercel `404: NOT_FOUND`
+
+If you still get Vercel platform 404 (with an ID like `arn1::...`), use this exact flow.
+
+### A) Validate the URL and deployment status
+1. Open Vercel project → **Deployments**.
+2. Click the latest successful deployment and use **Visit**.
+3. Confirm the URL is exactly that deployment URL (no extra path typo).
+
+### B) Ensure the deployment exists and is not stale
+- In **Deployments**, confirm the deployment is **Ready** and not deleted.
+- In **Domains**, verify your production/custom domain is assigned to the latest deployment alias.
+
+### C) Check build/runtime logs
+- Open deployment → **Functions / Logs** and look for build errors.
+- Ensure project settings are:
+  - Root Directory = this app folder
+  - Framework Preset = Next.js
+  - Build Command = `npm run vercel-build`
+  - Output Directory = empty/default
+
+### D) Verify permissions and team/project access
+- Confirm you are viewing the correct Vercel team/account.
+- Confirm your role has access to project deployments and domains.
+
+### E) Optional CLI diagnostics
+```bash
+npx vercel whoami
+npx vercel ls
+npx vercel inspect <deployment-url>
+npx vercel logs <deployment-url>
+```
+
+### F) Post-fix smoke tests
+- `https://<domain>/`
+- `https://<domain>/login`
+- `https://<domain>/api/health`
+
+If `/api/health` returns JSON but the domain root still fails, the domain alias is likely mapped to an older/removed deployment. Reassign the alias to the latest ready deployment.
