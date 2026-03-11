@@ -157,3 +157,5 @@ After deploy, verify:
 - `https://<your-domain>/api/health`
 
 If `/api/health` works but `/` still fails, check domain assignment for the latest deployment in Vercel’s **Domains** tab.
+
+Also verify you are opening the **current deployment URL** from Vercel (not an old one). In Vercel, open the latest successful deployment and use **Visit** or reassign aliases to it.
