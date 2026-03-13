@@ -1,6 +1,12 @@
 import "./globals.css";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Providers } from "@/components/providers";
+
+export const metadata: Metadata = {
+  title: "CarWash MVP",
+  description: "Car wash management system",
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
