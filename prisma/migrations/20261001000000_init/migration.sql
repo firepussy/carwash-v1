@@ -1,0 +1,75 @@
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('ADMIN', 'STAFF', 'OWNER');
+CREATE TYPE "WashBoxStatus" AS ENUM ('AVAILABLE', 'BUSY', 'MAINTENANCE');
+CREATE TYPE "BookingStatus" AS ENUM ('NEW', 'CONFIRMED', 'IN_PROGRESS', 'DONE', 'CANCELLED');
+CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED');
+
+CREATE TABLE "User" (
+  "id" TEXT PRIMARY KEY,
+  "email" TEXT NOT NULL UNIQUE,
+  "password" TEXT NOT NULL,
+  "role" "Role" NOT NULL,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "Client" (
+  "id" TEXT PRIMARY KEY,
+  "name" TEXT NOT NULL,
+  "phone" TEXT NOT NULL,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "Vehicle" (
+  "id" TEXT PRIMARY KEY,
+  "clientId" TEXT NOT NULL,
+  "brand" TEXT NOT NULL,
+  "model" TEXT NOT NULL,
+  "plateNumber" TEXT NOT NULL UNIQUE,
+  CONSTRAINT "Vehicle_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+CREATE TABLE "Service" (
+  "id" TEXT PRIMARY KEY,
+  "name" TEXT NOT NULL,
+  "durationMinutes" INTEGER NOT NULL,
+  "price" DOUBLE PRECISION NOT NULL
+);
+
+CREATE TABLE "WashBox" (
+  "id" TEXT PRIMARY KEY,
+  "name" TEXT NOT NULL,
+  "status" "WashBoxStatus" NOT NULL DEFAULT 'AVAILABLE'
+);
+
+CREATE TABLE "Booking" (
+  "id" TEXT PRIMARY KEY,
+  "clientId" TEXT NOT NULL,
+  "vehicleId" TEXT NOT NULL,
+  "boxId" TEXT NOT NULL,
+  "startTime" TIMESTAMP(3) NOT NULL,
+  "endTime" TIMESTAMP(3) NOT NULL,
+  "status" "BookingStatus" NOT NULL DEFAULT 'NEW',
+  CONSTRAINT "Booking_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "Booking_vehicleId_fkey" FOREIGN KEY ("vehicleId") REFERENCES "Vehicle"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "Booking_boxId_fkey" FOREIGN KEY ("boxId") REFERENCES "WashBox"("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+CREATE TABLE "Order" (
+  "id" TEXT PRIMARY KEY,
+  "bookingId" TEXT NOT NULL,
+  "actualStart" TIMESTAMP(3),
+  "actualEnd" TIMESTAMP(3),
+  "totalPrice" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "status" "OrderStatus" NOT NULL DEFAULT 'PENDING',
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "Order_bookingId_fkey" FOREIGN KEY ("bookingId") REFERENCES "Booking"("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+CREATE TABLE "OrderService" (
+  "id" TEXT PRIMARY KEY,
+  "orderId" TEXT NOT NULL,
+  "serviceId" TEXT NOT NULL,
+  "price" DOUBLE PRECISION NOT NULL,
+  CONSTRAINT "OrderService_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "OrderService_serviceId_fkey" FOREIGN KEY ("serviceId") REFERENCES "Service"("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
